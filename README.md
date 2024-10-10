@@ -66,7 +66,7 @@ Then the server will be started.
 ## Tools Used:
 
 - Frontend
-  - React, Bootstrap, Node, npm, axios
+  - HTML, CSS, Bootstrap, JavaScript, React, Node, npm, axios
 
 - Backend
-  - Flask, PostgreSQL, Pandas
+  - Python, Flask, PostgreSQL, Pandas
