@@ -1,5 +1,7 @@
 # telegram-chats-analyzer
-A web app for analyzing and visualizing telegram chats.
+Want an annual summary of your telegram chats with your best friend or lover?
+
+Here is a web app for you to analyze and visualize telegram chats!
 
 ## Setup
 
@@ -61,7 +63,48 @@ First, please open `app.py` and change the username and password of PostgreSQL d
 Then the server will be started.
 
 
-## Demo 
+## How to Use
+
+When you start the app, you will be directed to the welcome page in the browser:
+
+<img src="./resources/startpage.png" alt="welcome page" width=600/>
+
+After clicking on "START", you will see the start page where you can upload your chats files (json). 
+
+Just select your chats file, upload, enter a table name for your chats, and click on "process data", the chat data will be processed to a standard format and loaded to the database:
+
+<img src="./resources/fileupload.png" alt="upload" width=800 />
+
+After refreshing, you will see your chat table created. 
+
+You can choose a chat table and have a quick preview of its first 10 rows.
+
+<img src="./resources/showtable.png" alt="show table" width=700 />
+
+You can either click on "Delete" to delete the table from the database or click on "Select" to use the chat data for analysis.
+
+If you choose "select", you will be directed to a page where all of your contacts are shown.
+
+Simply click on the contact whose chats you want to analyze, you will see a calendar showing all dates when you have at least a chat!
+
+Now, you can select the start and end dates of your chats, and click "Confirm and Analyze"
+
+<img src="./resources/showchats.png" alt="show chats" width=700 />
+
+Then you will go to the analysis page. Currently we only have a chat frequency heatmap calendar for you. Click on the "Select" button in the "Visualize Chat Frequency Calendar" card, and you will see your heatmap calendar!
+
+<img src="./resources/analysis.png" alt="analysis" width=700 />
+
+More functions are in progress. Hope you can have fun!
+
+## Work in Progress
+
+- Add more functions like sentiment visualization, an interactive interface to view a chat annual summary, a rigorious statistical analysis of chats, and even incorporating ChatGPT to learn to chat like your selected contact! And ..., more!
+- Beautify the web style and make it more user-friendly.
+- Deploy the website on the internet for you to use more easily!
+
+Thank you, hope you will have fun! :) 
+
 
 ## Tools Used:
 
