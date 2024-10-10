@@ -1,0 +1,65 @@
+.analyze-button {
+  border-width: 1px;
+  border-color: #000;
+}
+
+.circle-button {
+    width: 125px;
+    height: 125px; 
+    border-radius: 50%;
+}
+
+.bottom-spacing {
+  margin-bottom: 30px;
+}
+
+.bottom-spacing-sm {
+  margin-bottom: 10px;
+}
+
+.top-spacing {
+  margin-top: 30px;
+}
+
+.calendar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.year-section {
+  margin: 20px 0;
+}
+
+.year-section h2 {
+  margin-bottom: 10px;
+}
+
+.year-section ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.year-section li {
+  margin: 5px 0;
+}
+
+.highlight {
+  background-color: yellow; /* Change this to your desired highlight color */
+  color: black; /* Change this to your desired text color */
+}
+
+.highlight-month {
+  background-color: lightblue; /* Change this to your desired highlight color */
+  color: black; /* Change this to your desired text color */
+}
+
+.highlight-year {
+  background-color: lightgreen; /* Change this to your desired highlight color */
+  color: black; /* Change this to your desired text color */
+}
+
+.calendar-container {
+  justify-content: center; /* Adjust as needed */
+  margin-top: 20px;
+}
