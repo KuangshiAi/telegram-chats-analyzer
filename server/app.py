@@ -12,7 +12,7 @@ from utils.generate_calendar import generate_calendar
 app = Flask(__name__)
 CORS(app)
 
-TEMP_JSON_PATH = "./uploads/temp.json"
+TEMP_JSON_PATH = "/home/kuangshiai/Desktop/24Fall-ND-Courses/DataVis/telegram-chats-analyzer/uploads/result.json"
 
 progress = {"total_contacts": 0, "processed_contacts": 0, "current_contact_progress": 0}
 
@@ -21,7 +21,7 @@ progress = {"total_contacts": 0, "processed_contacts": 0, "current_contact_progr
 DB_PARAMS = {
     "dbname": "chats",
     "user": "postgres",
-    "password": "5623242",
+    "password": "1234",
     "host": "localhost",
     "port": 5432,
 }
