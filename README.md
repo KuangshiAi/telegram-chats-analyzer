@@ -29,8 +29,22 @@ Here is a web app for you to analyze and visualize telegram chats!
   cd server
   pip install -r requirements.txt
   ```
-- Download [PostgreSQL](https://www.postgresql.org/download/), which is used as the project database.
-- Create a database named `chats` in PostgreSQL.
+- Download [PostgreSQL](https://www.postgresql.org/download/), which is used as the project database. Use Ubuntu 22.04 as an example here:
+  ```
+  sudo apt update
+  sudo apt install postgresql postgresql-contrib
+  sudo systemctl start postgresql.service
+  ```
+- Reset password and create a database named `chats` in PostgreSQL.
+  ```
+  sudo systemctl start postgresql.service
+  sudo -i -u postgres
+  createdb chats
+  psql
+  ALTER USER postgres WITH PASSWORD 'Your_Password';
+  exit
+  ```
+
   
 ### Export Telegram Chats
 
@@ -53,7 +67,7 @@ And the application will automatically shown in a browser. Or you can visit the 
 
 ### Start the Backend
 
-First, please open `app.py` and change the username and password of PostgreSQL database to your own username and password.
+First, please open `app.py` and `process_chat.py`, change the username and password of PostgreSQL database to your own username and password.
 
 ```
   cd server

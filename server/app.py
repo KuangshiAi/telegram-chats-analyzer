@@ -7,12 +7,12 @@ from tqdm import tqdm
 import threading
 import pandas as pd
 from utils.generate_calendar import generate_calendar
-
+from utils.generate_wordcloud import generate_wordcloud
 
 app = Flask(__name__)
 CORS(app)
 
-TEMP_JSON_PATH = "./uploads/temp.json"
+TEMP_JSON_PATH = "/home/kuangshiai/Desktop/24Fall-ND-Courses/DataVis/telegram-chats-analyzer/uploads/result.json"
 
 progress = {"total_contacts": 0, "processed_contacts": 0, "current_contact_progress": 0}
 
@@ -21,7 +21,7 @@ progress = {"total_contacts": 0, "processed_contacts": 0, "current_contact_progr
 DB_PARAMS = {
     "dbname": "chats",
     "user": "postgres",
-    "password": "5623242",
+    "password": "1234",
     "host": "localhost",
     "port": 5432,
 }
@@ -334,6 +334,52 @@ def count_chat_dates():
         if conn:
             conn.close()
         print(chat_num_each_day_from_me_normalized)
+
+@app.route("/api/wordcloud", methods=["GET"])
+def generate_word_cloud():
+    data = request.args
+    start_date = datetime.fromisoformat(
+        data.get("start_date").replace("Z", "+00:00")
+    ).date()
+    end_date = datetime.fromisoformat(
+        data.get("end_date").replace("Z", "+00:00")
+    ).date()
+    db_name = data.get("db_name")
+    chat_contact = data.get("contact_name")
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        query = f"""
+            SELECT text
+            FROM {db_name}
+            WHERE DATE(time) BETWEEN %s AND %s
+              AND chat_contact = %s
+        """
+        cursor.execute(query, (start_date, end_date, chat_contact))
+        texts = cursor.fetchall()
+        text_data = [row[0] for row in texts if row[0]]
+
+        if not text_data:
+            return jsonify({"error": "No text data found for the specified criteria."}), 404
+
+        # Generate word cloud
+        output_name = f"wordcloud_{chat_contact}.png"
+        output_path = generate_wordcloud(text_data, output_name=output_name)
+
+        # Return the image URL
+        image_url = f"http://127.0.0.1:5000/static/{output_name}"
+        return jsonify({"image": image_url}), 200
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 @app.route("/static/<path:path>")
 def send_file(path):

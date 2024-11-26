@@ -13,6 +13,7 @@ const AnalysisPage = () => {
   const [calendarImages, setCalendarImages] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [wordCloudImage, setWordCloudImage] = useState(null);
 
   // Mapping of image keys to their respective titles
   const imageTitles = {
@@ -22,11 +23,12 @@ const AnalysisPage = () => {
   };
 
   const functions = [
-    { funcName: "Visualize Chat Frequency Calendar", funcDescription: "Generate a calendar heatmap of chat frequency" },
-    { funcName: "Function 2", funcDescription: "Description for function 2" },
-    { funcName: "Function 3", funcDescription: "Description for function 3" },
-    { funcName: "Function 4", funcDescription: "Description for function 4" }
+    { funcName: "Visualize Chat Frequency Calendar", funcDescription: "Generate a calendar heatmap of chat frequency to identify active and inactive periods" },
+    { funcName: "Word Cloud", funcDescription: "Create a word cloud to visualize the most frequently used words in chat messages" },
+    { funcName: "Sentiment Analysis", funcDescription: "Perform sentiment analysis on chat messages and use t-SNE to cluster examples based on emotional tone" },
+    { funcName: "Social Network Graph", funcDescription: "Generate a social network graph to visualize user interactions in selected Telegram channels, highlighting key connections" }
   ];
+  
 
   const handleFunctionSelect = async (funcName) => {
     setSelectedFunction(funcName);
@@ -56,6 +58,30 @@ const AnalysisPage = () => {
       } catch (err) {
         console.error("Error fetching calendar data:", err);
         setError("Failed to generate calendar.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    else if (funcName === "Word Cloud") {
+      setLoading(true);
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/api/wordcloud', {
+          params: {
+            start_date: startDate.toISOString(),
+            end_date: endDate.toISOString(),
+            db_name: dbName,
+            contact_name: contact 
+          }
+        });
+  
+        if (response.data && response.data.image) {
+          setWordCloudImage(response.data.image);
+        } else {
+          setError("Word Cloud image URL not found in the response.");
+        }
+      } catch (err) {
+        console.error("Error generating word cloud:", err);
+        setError("Failed to generate word cloud.");
       } finally {
         setLoading(false);
       }
@@ -103,6 +129,21 @@ const AnalysisPage = () => {
                 </div>
               </div>
             ) : null
+          ) : selectedFunction === "Word Cloud" ? (
+            loading ? (
+              <p className="text-center">Generating word cloud...</p>
+            ) : error ? (
+              <p className="text-center text-danger">{error}</p>
+            ) : wordCloudImage ? (
+              <div className="text-center">
+                <h5>Word Cloud</h5>
+                <img
+                  src={wordCloudImage}
+                  alt="Word Cloud Visualization"
+                  className="img-fluid"
+                />
+              </div>
+            ) : null  
           ) : (
             <p className="text-center">In progress</p>
           )

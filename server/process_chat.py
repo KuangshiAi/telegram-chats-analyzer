@@ -11,13 +11,30 @@ def load_data_to_database(json_path):
         conn = pg.connect(
             dbname="chats",
             user="postgres",
-            password="5623242",
+            password="1234",
             host="localhost",
             port=5432
         )
         cursor = conn.cursor()
         print("Database connection successful!", file=sys.stderr)
 
+        # Create the 'messages' table if it doesn't exist
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS messages (
+                message_id SERIAL PRIMARY KEY,
+                chat_id VARCHAR(255) NOT NULL,
+                sender VARCHAR(255),
+                sender_id VARCHAR(255),
+                text TEXT,
+                time TIMESTAMP NOT NULL,
+                reply_to_message_id INT,
+                chat_contact VARCHAR(255)
+            )
+        """)
+        conn.commit()
+        print("Table 'messages' ensured to exist.", file=sys.stderr)
+
+        # Load the JSON data
         with open(json_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
@@ -59,6 +76,6 @@ def load_data_to_database(json_path):
             conn.close()
 
 if __name__ == "__main__":
-    json_path = sys.argv[1] # "../client/data/telegram_chats.json" #
+    json_path = sys.argv[1]  # "../client/data/telegram_chats.json" #
     contacts = load_data_to_database(json_path)
     print(json.dumps(contacts))
