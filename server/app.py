@@ -12,7 +12,7 @@ from utils.generate_wordcloud import generate_wordcloud
 app = Flask(__name__)
 CORS(app)
 
-TEMP_JSON_PATH = "/home/kuangshiai/Desktop/24Fall-ND-Courses/DataVis/telegram-chats-analyzer/uploads/result.json"
+TEMP_JSON_PATH = "/home/kuangshiai/Desktop/24Fall-ND-Courses/DataVis/telegram-chats-analyzer/uploads/telegram_chat_history.json"
 
 progress = {"total_contacts": 0, "processed_contacts": 0, "current_contact_progress": 0}
 

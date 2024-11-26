@@ -20,6 +20,7 @@ def load_data_to_database(json_path):
 
         # Create the 'messages' table if it doesn't exist
         cursor.execute("""
+            DROP TABLE IF EXISTS messages;
             CREATE TABLE IF NOT EXISTS messages (
                 message_id SERIAL PRIMARY KEY,
                 chat_id VARCHAR(255) NOT NULL,
