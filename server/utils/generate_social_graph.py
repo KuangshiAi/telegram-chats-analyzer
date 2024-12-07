@@ -76,7 +76,7 @@ def generate_social_graph(messages, output_path="static/social_graph.png", min_e
     plt.colorbar(sm, ax=plt.gca(), label="Edge Weight (Frequency)")
 
     plt.title("Social Network Graph of User Interactions")
-    plt.savefig(output_path)
+    plt.savefig(output_path, dpi=1000)
     plt.close()
 
     return output_path

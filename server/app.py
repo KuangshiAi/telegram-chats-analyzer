@@ -10,11 +10,14 @@ from utils.generate_calendar import generate_calendar
 from utils.generate_wordcloud import generate_wordcloud
 from utils.generate_sentiment import analyze_sentiment_and_generate_tsne
 from utils.generate_social_graph import generate_social_graph
+from psycopg2 import sql
+from utils.generate_chatnum_piechart import generate_pie_chart
+from utils.generate_radarchart import generate_radar_chart
 
 app = Flask(__name__)
 CORS(app)
 
-TEMP_JSON_PATH = "/home/kuangshiai/Desktop/24Fall-ND-Courses/DataVis/telegram-chats-analyzer/uploads/result.json"
+TEMP_JSON_PATH = "./uploads/result.json"
 
 progress = {"total_contacts": 0, "processed_contacts": 0, "current_contact_progress": 0}
 
@@ -23,7 +26,7 @@ progress = {"total_contacts": 0, "processed_contacts": 0, "current_contact_progr
 DB_PARAMS = {
     "dbname": "chats",
     "user": "postgres",
-    "password": "1234",
+    "password": "5623242",
     "host": "localhost",
     "port": 5432,
 }
@@ -156,10 +159,10 @@ def delete_table(table_name):
     cursor = conn.cursor()
     try:
         if not table_name or table_name.strip() == "":
-            return jsonify({"error": "无效的表名"}), 400
+            return jsonify({"error": "Invalid table name."}), 400
         cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
         conn.commit()
-        return jsonify({"message": f"表 {table_name} 已成功删除。"}), 200
+        return jsonify({"message": f"Table {table_name} has been successfully deleted."}), 200
     except Exception as e:
         conn.rollback()
         return jsonify({"error": str(e)}), 500
@@ -187,14 +190,14 @@ def get_contacts(databaseName):
     return jsonify([contact[0] for contact in contacts])
 
 
-@app.route("/api/getChatDates/<contact>", methods=["GET"])
-def get_dates(contact):
+@app.route("/api/getChatDates/<databaseName>/<contact>", methods=["GET"])
+def get_dates(databaseName, contact):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute(
-        "SELECT DISTINCT time::date AS date FROM messages WHERE chat_contact = %s ORDER BY date ASC",
-        (contact,),
-    )
+    query = sql.SQL(
+        "SELECT DISTINCT time::date AS date FROM {} WHERE chat_contact = %s ORDER BY date ASC"
+    ).format(sql.Identifier(databaseName))
+    cursor.execute(query, (contact,))
     dates = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -320,8 +323,8 @@ def count_chat_dates():
                 "from_me": chat_num_each_day_from_me,
                 "images": {
                     "both": "http://127.0.0.1:5000/static/calendar_both.png",
-                    #"from_contact": "http://127.0.0.1:5000/static/calendar_from_contact.png",
-                    #"from_me": "http://127.0.0.1:5000/static/calendar_from_me.png",
+                    # "from_contact": "http://127.0.0.1:5000/static/calendar_from_contact.png",
+                    # "from_me": "http://127.0.0.1:5000/static/calendar_from_me.png",
                 }
             }
         ), 200
@@ -423,6 +426,144 @@ def perform_sentiment_analysis():
             cursor.close()
         if conn:
             conn.close()
+            
+
+@app.route("/api/radar_chat_time", methods=["GET"])
+def generate_radar_chat_time():
+    data = request.args
+    start_date_str = data.get("start_date")
+    end_date_str = data.get("end_date")
+    db_name = data.get("db_name")
+    chat_contact = data.get("contact_name")
+
+    # Validate required parameters
+    if not all([start_date_str, end_date_str, db_name, chat_contact]):
+        return jsonify({"error": "Missing required query parameters."}), 400
+
+    try:
+        # Parse dates
+        start_date = datetime.fromisoformat(
+            start_date_str.replace("Z", "+00:00")
+        ).date()
+        end_date = datetime.fromisoformat(
+            end_date_str.replace("Z", "+00:00")
+        ).date()
+    except ValueError as ve:
+        return jsonify({"error": f"Invalid date format: {ve}"}), 400
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Query to count messages by hour
+        query = f"""
+            SELECT EXTRACT(HOUR FROM time) as hour, COUNT(*) as message_count
+            FROM {db_name}
+            WHERE DATE(time) BETWEEN %s AND %s
+              AND chat_contact = %s
+            GROUP BY hour
+            ORDER BY hour
+        """
+        cursor.execute(query, (start_date, end_date, chat_contact))
+        results = cursor.fetchall()
+
+        if not results:
+            return jsonify({"error": "No chat data found for the specified criteria."}), 404
+
+        # Create a list of message counts by hour (0 to 23)
+        hourly_counts = [0] * 24  # Initialize counts for all hours
+        for hour, count in results:
+            hourly_counts[int(hour)] = count
+
+        # Generate radar chart
+        timestamp = int(datetime.now().timestamp())
+        output_name = f"radar_chart.png"
+        output_path = generate_radar_chart(hourly_counts, output_name=output_name)
+
+        # Construct the image URL
+        image_url = f"http://127.0.0.1:5000/static/{output_name}"
+
+        return jsonify({"image": image_url}), 200
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+            
+
+@app.route("/api/pie_chart_chat_numbers", methods=["GET"])
+def generate_pie_chart_chat_numbers():
+    data = request.args
+    start_date_str = data.get("start_date")
+    end_date_str = data.get("end_date")
+    db_name = data.get("db_name")
+    chat_contact = data.get("contact_name")
+
+    # Validate required parameters
+    if not all([start_date_str, end_date_str, db_name, chat_contact]):
+        return jsonify({"error": "Missing required query parameters."}), 400
+
+    try:
+        # Parse dates
+        start_date = datetime.fromisoformat(
+            start_date_str.replace("Z", "+00:00")
+        ).date()
+        end_date = datetime.fromisoformat(
+            end_date_str.replace("Z", "+00:00")
+        ).date()
+    except ValueError as ve:
+        return jsonify({"error": f"Invalid date format: {ve}"}), 400
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Query to count messages per sender for a specific chat contact and date range
+        query = f"""
+            SELECT sender, COUNT(*) as message_count
+            FROM {db_name}
+            WHERE DATE(time) BETWEEN %s AND %s
+              AND chat_contact = %s
+            GROUP BY sender
+            ORDER BY message_count DESC
+        """
+        cursor.execute(query, (start_date, end_date, chat_contact))
+        results = cursor.fetchall()
+
+        if not results:
+            return jsonify({"error": "No chat data found for the specified criteria."}), 404
+
+        # Create a dictionary of message counts per sender
+        chat_counts = {row[0]: row[1] for row in results}
+
+        if not chat_counts:
+            return jsonify({"error": "No valid user data found for the specified criteria."}), 404
+
+        # Generate pie chart
+        timestamp = int(datetime.now().timestamp())
+        output_name = f"pie_chart.png"
+        output_path = generate_pie_chart(chat_counts, output_name=output_name)
+
+        # Construct the image URL
+        image_url = f"http://127.0.0.1:5000/static/{output_name}"
+
+        return jsonify({"image": image_url}), 200
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+            
 
 @app.route("/api/social_graph", methods=["GET"])
 def create_social_network_graph():

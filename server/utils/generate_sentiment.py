@@ -53,7 +53,7 @@ def analyze_sentiment_and_generate_tsne(text_data, output_path="static/sentiment
     plt.title("t-SNE Clustering of Sentiments")
     plt.xlabel("t-SNE Dimension 1")
     plt.ylabel("t-SNE Dimension 2")
-    plt.savefig(output_path)
+    plt.savefig(output_path, dpi=1000)
     plt.close()
 
     return output_path

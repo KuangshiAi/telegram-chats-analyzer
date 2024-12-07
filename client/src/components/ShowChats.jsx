@@ -30,14 +30,14 @@ function ShowChats(props) {
     fetchContacts();
   }, [dbName]);
 
-  const handleButtonClick = async (contact) => {
+  const handleButtonClick = async (contact, dbName) => {
     if (contact === selectedContact) {
       return;
     }
-    const fetchChatDates = async (contact) => {
+    const fetchChatDates = async (contact, dbName) => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/getChatDates/${contact}`
+          `http://localhost:5000/api/getChatDates/${dbName}/${contact}`
         );
         return response.data;
       } catch (error) {
@@ -46,7 +46,7 @@ function ShowChats(props) {
       }
     };
 
-    const dates = await fetchChatDates(contact);
+    const dates = await fetchChatDates(contact, dbName);
     if (dates) {
       setChatDates(dates);
       console.log(dates);
@@ -78,7 +78,7 @@ function ShowChats(props) {
                     height: "7.5rem",
                     fontSize: ".75rem",
                   }}
-                  onClick={() => handleButtonClick(contact)} 
+                  onClick={() => handleButtonClick(contact, dbName)} 
                 >
                   {contact}
                 </Fab>

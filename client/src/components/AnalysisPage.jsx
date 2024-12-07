@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ShowFunctions from './ShowFunctions';
 import axios from 'axios';
 
 const AnalysisPage = () => {
   const location = useLocation();
-  const { startDate, endDate, dbName, contact } = location.state;
+  const navigate = useNavigate();
+
+  // Destructure state passed through location
+  const { startDate, endDate, dbName, contact } = location.state || {};
 
   const [selectedFunction, setSelectedFunction] = useState(null);
   const [calendarImages, setCalendarImages] = useState(null);
@@ -17,20 +20,59 @@ const AnalysisPage = () => {
   const [minEdgeWeight, setMinEdgeWeight] = useState(3);
   const [topNNodes, setTopNNodes] = useState(100);
 
-  // Mapping of image keys to their respective titles
+  // Image titles mapping
   const imageTitles = {
     both: "Overall Chat Frequency",
     from_contact: "Chats from Contact",
     from_me: "Chats from Me",
+    pie_chart: "Chat Numbers by User",
+    radar_chart: "Chat Time Distribution",
   };
 
   const functions = [
-    { funcName: "Visualize Chat Frequency Calendar", funcDescription: "Generate a calendar heatmap of chat frequency to identify active and inactive periods" },
-    { funcName: "Word Cloud", funcDescription: "Create a word cloud to visualize the most frequently used words in chat messages" },
-    { funcName: "Sentiment Analysis", funcDescription: "Perform sentiment analysis on chat messages and use t-SNE to cluster examples based on emotional tone" },
-    { funcName: "Social Network Graph", funcDescription: "Generate a social network graph to visualize user interactions in selected Telegram channels, highlighting key connections" },
+    {
+      funcName: "Visualize Chat Frequency Calendar",
+      funcDescription:
+        "Generate a calendar heatmap of chat frequency to identify active and inactive periods",
+    },
+    {
+      funcName: "Word Cloud",
+      funcDescription:
+        "Create a word cloud to visualize the most frequently used words in chat messages",
+    },
+    {
+      funcName: "Sentiment Analysis",
+      funcDescription:
+        "Perform sentiment analysis on chat messages and use t-SNE to cluster examples based on emotional tone",
+    },
+    {
+      funcName: "Social Network Graph",
+      funcDescription:
+        "Generate a social network graph to visualize user interactions in selected Telegram channels, highlighting key connections",
+    },
+    {
+      funcName: "Pie Chart of Chat Numbers by User",
+      funcDescription:
+        "Generate a pie chart representing the distribution of chat numbers among different users",
+    },
+    {
+      funcName: "Radar Chart of Activity by Time of Day",
+      funcDescription:
+        "Create a radar chart to visualize chat activity distribution across different times of the day",
+    },
   ];
 
+  // Navigate back function
+  const handleBack = () => {
+    console.log(window.history.length, "Navigating back");
+    if (window.history.length > 1) {
+      navigate(-1); // Go back in history if possible
+    } else {
+      navigate('/'); // Fallback to the home page
+    }
+  };
+
+  // Function selection handler
   const handleFunctionSelect = async (funcName) => {
     setSelectedFunction(funcName);
     setError(null);
@@ -39,77 +81,39 @@ const AnalysisPage = () => {
     setLoading(true);
 
     try {
-      if (funcName === "Visualize Chat Frequency Calendar") {
-        const response = await axios.get('http://127.0.0.1:5000/api/countChatDates', {
-          params: {
-            start_date: startDate.toISOString(),
-            end_date: endDate.toISOString(),
-            db_name: dbName,
-            contact_name: contact,
-          },
-        });
-        if (response.data && response.data.images) {
-          setCalendarImages(response.data.images);
-        } else {
-          setError("Image URLs not found in the response.");
-        }
-      } else if (funcName === "Word Cloud") {
-        const response = await axios.get('http://127.0.0.1:5000/api/wordcloud', {
-          params: {
-            start_date: startDate.toISOString(),
-            end_date: endDate.toISOString(),
-            db_name: dbName,
-            contact_name: contact,
-          },
-        });
-        if (response.data && response.data.image) {
-          setResultImage(response.data.image);
-        } else {
-          setError("Word Cloud image URL not found in the response.");
-        }
-      } else if (funcName === "Sentiment Analysis") {
-        const response = await axios.get('http://127.0.0.1:5000/api/sentiment', {
-          params: {
-            start_date: startDate.toISOString(),
-            end_date: endDate.toISOString(),
-            db_name: dbName,
-            contact_name: contact,
-          },
-        });
-        if (response.data && response.data.image) {
-          setResultImage(response.data.image);
-        } else {
-          setError("Sentiment Analysis image URL not found in the response.");
-        }
-      } else if (funcName === "Social Network Graph") {
-        setLoading(true);
-        try {
-          const response = await axios.get('http://127.0.0.1:5000/api/social_graph', {
-            params: {
-              start_date: startDate.toISOString(),
-              end_date: endDate.toISOString(),
-              db_name: dbName,
-              contact_name: contact,
-              min_edge_weight: minEdgeWeight,
-              top_n_nodes: topNNodes,
-            },
-          });
-          if (response.data && response.data.image) {
-            const timestamp = new Date().getTime();
-            setResultImage(`${response.data.image}?t=${timestamp}`);
-          } else {
-            setError("Social Network Graph image URL not found in the response.");
-          }
-        } catch (err) {
-          console.error("Error generating social network graph:", err);
-          setError("Failed to generate social network graph.");
-        } finally {
-          setLoading(false);
-        }
-      }      
+      // Add appropriate API calls based on function name
+      const apiMap = {
+        "Visualize Chat Frequency Calendar": "countChatDates",
+        "Word Cloud": "wordcloud",
+        "Sentiment Analysis": "sentiment",
+        "Social Network Graph": "social_graph",
+        "Pie Chart of Chat Numbers by User": "pie_chart_chat_numbers",
+        "Radar Chart of Activity by Time of Day": "radar_chat_time",
+      };
+
+      const response = await axios.get(`http://127.0.0.1:5000/api/${apiMap[funcName]}`, {
+        params: {
+          start_date: startDate?.toISOString(),
+          end_date: endDate?.toISOString(),
+          db_name: dbName,
+          contact_name: contact,
+          ...(funcName === "Social Network Graph" && {
+            min_edge_weight: minEdgeWeight,
+            top_n_nodes: topNNodes,
+          }),
+        },
+      });
+
+      if (response.data) {
+        const data = response.data;
+        if (data.images) setCalendarImages(data.images);
+        if (data.image) setResultImage(data.image);
+      } else {
+        setError(`Data not found for ${funcName}`);
+      }
     } catch (err) {
       console.error(`Error performing ${funcName}:`, err);
-      setError(`Failed to perform ${funcName.toLowerCase()}.`);
+      setError(`Failed to perform ${funcName}`);
     } finally {
       setLoading(false);
     }
@@ -117,35 +121,17 @@ const AnalysisPage = () => {
 
   return (
     <div className="container">
-      <h1 className="text-center mt-4">Analysis of Chats with {contact}</h1>
-      
-      {/* Parameters for Social Network Graph */}
-      {selectedFunction === "Social Network Graph" && (
-        <div className="row mt-4">
-          <div className="col-md-6">
-            <label htmlFor="minEdgeWeight" className="form-label">Minimum Edge Weight:</label>
-            <input
-              type="number"
-              id="minEdgeWeight"
-              className="form-control"
-              value={minEdgeWeight}
-              onChange={(e) => setMinEdgeWeight(Number(e.target.value))}
-              min="1"
-            />
-          </div>
-          <div className="col-md-6">
-            <label htmlFor="topNNodes" className="form-label">Top N Nodes:</label>
-            <input
-              type="number"
-              id="topNNodes"
-              className="form-control"
-              value={topNNodes}
-              onChange={(e) => setTopNNodes(Number(e.target.value))}
-              min="1"
-            />
-          </div>
-        </div>
-      )}
+      {/* Header with Back Button and Centered Title */}
+      <div className="d-flex align-items-center mb-3 mt-5">
+        <button
+          className="btn btn-primary"
+          onClick={handleBack}
+          style={{ marginLeft: '20px' }}
+        >
+          Back
+        </button>
+        <h1 className="w-100 text-center">Analysis of Chats with {contact}</h1>
+      </div>
 
       <div className="row mt-5">
         {functions.map((func, index) => (
@@ -161,47 +147,38 @@ const AnalysisPage = () => {
 
       <div className="mt-5">
         {selectedFunction && (
-          selectedFunction === "Visualize Chat Frequency Calendar" ? (
-            loading ? (
-              <p className="text-center">Generating calendar...</p>
-            ) : error ? (
-              <p className="text-center text-danger">{error}</p>
-            ) : calendarImages ? (
-              <div className="row g-3">
-                {Object.keys(calendarImages).map((key) => (
-                  <div className="col-md-4" key={key}>
-                    <div className="card h-100">
-                      <div className="card-body text-center">
-                        <h5 className="card-title">{imageTitles[key]}</h5>
-                        <img
-                          src={calendarImages[key]}
-                          alt={`${imageTitles[key]} Visualization`}
-                          className="img-fluid"
-                        />
-                      </div>
+          loading ? (
+            <p className="text-center">Loading {selectedFunction}...</p>
+          ) : error ? (
+            <p className="text-center text-danger">{error}</p>
+          ) : calendarImages ? (
+            <div className="row g-3">
+              {Object.keys(calendarImages).map((key) => (
+                <div className="col-md-12" key={key}>
+                  <div className="card h-100">
+                    <div className="card-body text-center">
+                      <h5 className="card-title">{imageTitles[key]}</h5>
+                      <img
+                        src={calendarImages[key]}
+                        alt={`${imageTitles[key]} Visualization`}
+                        className="img-fluid"
+                        style={{ maxWidth: '70%', maxHeight: '400px' }}
+                      />
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : null
-          ) : selectedFunction === "Word Cloud" || selectedFunction === "Sentiment Analysis" || selectedFunction === "Social Network Graph" ? (
-            loading ? (
-              <p className="text-center">Generating {selectedFunction.toLowerCase()}...</p>
-            ) : error ? (
-              <p className="text-center text-danger">{error}</p>
-            ) : resultImage ? (
-              <div className="text-center">
-                <h5>{selectedFunction}</h5>
-                <img
-                  src={resultImage}
-                  alt={`${selectedFunction} Visualization`}
-                  className="img-fluid"
-                />
-              </div>
-            ) : null
-          ) : (
-            <p className="text-center">In progress...</p>
-          )
+                </div>
+              ))}
+            </div>
+          ) : resultImage ? (
+            <div className="text-center">
+              <img
+                src={resultImage}
+                alt={`${selectedFunction} Visualization`}
+                className="img-fluid"
+                style={{ maxWidth: '70%', maxHeight: '400px' }}
+              />
+            </div>
+          ) : null
         )}
       </div>
     </div>

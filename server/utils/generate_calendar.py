@@ -21,7 +21,7 @@ def generate_calendar(data, output_path='./static/', output_name='calendar_both.
     events = pd.Series([dat[1] for dat in data], index=pd.DatetimeIndex([dat[0] for dat in data]))
     plt.figure(figsize=(30, 20))
     calmap.calendarplot(events, vmin=0, vmax=1)
-    plt.savefig(output_path + output_name)
+    plt.savefig(output_path + output_name, dpi=1000)
     plt.close()
 
 
