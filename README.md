@@ -3,6 +3,8 @@ Want an annual summary of your telegram chats with your best friend or lover?
 
 Here is a web app for you to analyze and visualize telegram chats!
 
+Authors: [mikelovesolivia](https://github.com/mikelovesolivia) & [KuangshiAi](https://github.com/KuangshiAi)
+
 ## Setup
 
 ### Frontend (client)
