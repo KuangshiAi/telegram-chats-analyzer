@@ -30,7 +30,7 @@ def generate_radar_chart(hourly_counts, output_name):
     ax.set_theta_offset(np.pi / 2)
     ax.set_theta_direction(-1)
     ax.set_xticks(angles[:-1])  # Exclude the repeated angle
-    ax.set_xticklabels([f"{hour} h" for hour in range(24)])
+    ax.set_xticklabels([f"{hour}:00" for hour in range(24)])
 
     max_value = max(data)
     adaptive_interval = max(1, max_value // 5)  # Divide into roughly 5 intervals, minimum interval is 1
