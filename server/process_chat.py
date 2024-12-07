@@ -29,7 +29,7 @@ def load_data_to_database(json_path):
                 text TEXT,
                 time TIMESTAMP NOT NULL,
                 reply_to_message_id INT,
-                chat_contact VARCHAR(255)
+                chat_contact VARCHAR(1024)
             )
         """)
         conn.commit()

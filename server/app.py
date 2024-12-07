@@ -8,11 +8,13 @@ import threading
 import pandas as pd
 from utils.generate_calendar import generate_calendar
 from utils.generate_wordcloud import generate_wordcloud
+from utils.generate_sentiment import analyze_sentiment_and_generate_tsne
+from utils.generate_social_graph import generate_social_graph
 
 app = Flask(__name__)
 CORS(app)
 
-TEMP_JSON_PATH = "/home/kuangshiai/Desktop/24Fall-ND-Courses/DataVis/telegram-chats-analyzer/uploads/telegram_chat_history.json"
+TEMP_JSON_PATH = "/home/kuangshiai/Desktop/24Fall-ND-Courses/DataVis/telegram-chats-analyzer/uploads/result.json"
 
 progress = {"total_contacts": 0, "processed_contacts": 0, "current_contact_progress": 0}
 
@@ -64,6 +66,7 @@ def load_data_to_database(json_path, table_name="messages2"):
 
     # Check if the table exists, if not create it with the specified format
     cursor.execute(f"""
+        Drop TABLE IF EXISTS {table_name};
         CREATE TABLE IF NOT EXISTS {table_name} (
             id SERIAL PRIMARY KEY,
             message_id BIGINT,
@@ -284,32 +287,31 @@ def count_chat_dates():
         cursor.execute(query3, (start_date_str, end_date_str, chat_contact, chat_contact))
         chat_num_each_day_from_me = cursor.fetchall()
 
-        print(chat_num_each_day_both)
         max_value = max(row[1] for row in chat_num_each_day_both) if chat_num_each_day_both else 1
 
         def normalize_chat_counts(chat_data, max_value):
-            return [(row[0], row[1] / max_value) for row in chat_data]
+            return [(row[0], row[1] / max_value) for row in chat_data] if chat_data else []
 
-        chat_num_each_day_both_normalized = normalize_chat_counts(
-            chat_num_each_day_both, max_value
-        )
-        chat_num_each_day_from_contact_normalized = normalize_chat_counts(
-            chat_num_each_day_from_contact, max_value
-        )
-        chat_num_each_day_from_me_normalized = normalize_chat_counts(
-            chat_num_each_day_from_me, max_value
-        )
+        # Normalize each dataset
+        chat_num_each_day_both_normalized = normalize_chat_counts(chat_num_each_day_both, max_value)
+        chat_num_each_day_from_contact_normalized = normalize_chat_counts(chat_num_each_day_from_contact, max_value)
+        chat_num_each_day_from_me_normalized = normalize_chat_counts(chat_num_each_day_from_me, max_value)
 
-        generate_calendar(
-            chat_num_each_day_both_normalized, output_name="calendar_both.png"
-        )
-        generate_calendar(
-            chat_num_each_day_from_contact_normalized,
-            output_name="calendar_from_contact.png",
-        )
-        generate_calendar(
-            chat_num_each_day_from_me_normalized, output_name="calendar_from_me.png"
-        )
+        # Generate calendar only if the data is not empty
+        if chat_num_each_day_both_normalized:
+            generate_calendar(chat_num_each_day_both_normalized, output_name="calendar_both.png")
+        else:
+            print("No data for both chats. Skipping calendar generation.")
+
+        # if chat_num_each_day_from_contact_normalized:
+        #     generate_calendar(chat_num_each_day_from_contact_normalized, output_name="calendar_from_contact.png")
+        # else:
+        #     print("No data from contact. Skipping calendar generation.")
+
+        # if chat_num_each_day_from_me_normalized:
+        #     generate_calendar(chat_num_each_day_from_me_normalized, output_name="calendar_from_me.png")
+        # else:
+        #     print("No data from me. Skipping calendar generation.")
 
         return jsonify(
             {
@@ -318,8 +320,8 @@ def count_chat_dates():
                 "from_me": chat_num_each_day_from_me,
                 "images": {
                     "both": "http://127.0.0.1:5000/static/calendar_both.png",
-                    "from_contact": "http://127.0.0.1:5000/static/calendar_from_contact.png",
-                    "from_me": "http://127.0.0.1:5000/static/calendar_from_me.png",
+                    #"from_contact": "http://127.0.0.1:5000/static/calendar_from_contact.png",
+                    #"from_me": "http://127.0.0.1:5000/static/calendar_from_me.png",
                 }
             }
         ), 200
@@ -380,6 +382,96 @@ def generate_word_cloud():
             cursor.close()
         if conn:
             conn.close()
+
+@app.route("/api/sentiment", methods=["GET"])
+def perform_sentiment_analysis():
+    data = request.args
+    start_date = datetime.fromisoformat(data.get("start_date").replace("Z", "+00:00")).date()
+    end_date = datetime.fromisoformat(data.get("end_date").replace("Z", "+00:00")).date()
+    db_name = data.get("db_name")
+    chat_contact = data.get("contact_name")
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        query = f"""
+            SELECT text
+            FROM {db_name}
+            WHERE DATE(time) BETWEEN %s AND %s
+              AND chat_contact = %s
+        """
+        cursor.execute(query, (start_date, end_date, chat_contact))
+        texts = cursor.fetchall()
+        text_data = [row[0] for row in texts if row[0]]
+
+        if not text_data:
+            return jsonify({"error": "No text data found for the specified criteria."}), 404
+
+        # Call the sentiment analysis and t-SNE function
+        output_path = analyze_sentiment_and_generate_tsne(text_data)
+
+        # Return the image URL
+        image_url = f"http://127.0.0.1:5000/{output_path}"
+        return jsonify({"image": image_url}), 200
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route("/api/social_graph", methods=["GET"])
+def create_social_network_graph():
+    data = request.args
+    start_date = datetime.fromisoformat(data.get("start_date").replace("Z", "+00:00")).date()
+    end_date = datetime.fromisoformat(data.get("end_date").replace("Z", "+00:00")).date()
+    db_name = data.get("db_name")
+    chat_contact = data.get("contact_name")
+    min_edge_weight = int(data.get("min_edge_weight", 3))  # Default to 3
+    top_n_nodes = int(data.get("top_n_nodes", 100))        # Default to 100
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        query = f"""
+            SELECT sender
+            FROM {db_name}
+            WHERE DATE(time) BETWEEN %s AND %s
+              AND chat_contact = %s
+              AND sender IS NOT NULL
+            ORDER BY time ASC
+        """
+        cursor.execute(query, (start_date, end_date, chat_contact))
+        messages = [{"sender": row[0]} for row in cursor.fetchall()]
+
+        if not messages:
+            return jsonify({"error": "No messages found for the specified criteria."}), 404
+
+        # Generate the social network graph
+        output_path = generate_social_graph(
+            messages, 
+            min_edge_weight=min_edge_weight, 
+            top_n_nodes=top_n_nodes
+        )
+
+        # Return the graph image URL
+        image_url = f"http://127.0.0.1:5000/{output_path}"
+        return jsonify({"image": image_url}), 200
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
 
 @app.route("/static/<path:path>")
 def send_file(path):
