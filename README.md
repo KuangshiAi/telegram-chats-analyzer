@@ -66,6 +66,21 @@ Open two terminals at the project folder, and run the following commands respect
 
 And the application will automatically shown in a browser. Or you can visit the webpage at http://localhost:3000.
 
+### Convert chat data format
+If you have chat data downloaded from discord or text, you can go to `server/utils` folder, modify the related file names and run
+
+```
+python discord2tele.py
+```
+
+or 
+
+```
+python text2tele.py
+```
+and you will get the right format of your chat data as json file. You can then upload the file to the application as aforementioned.
+
+
 
 ### Start the Backend
 
