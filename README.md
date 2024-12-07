@@ -94,45 +94,32 @@ First, please open `app.py` and `process_chat.py`, change the username and passw
 Then the server will be started.
 
 
-## How to Use
-
-When you start the app, you will be directed to the welcome page in the browser:
-
-<img src="./resources/startpage.png" alt="welcome page" width=600/>
-
-After clicking on "START", you will see the start page where you can upload your chats files (json). 
-
-Just select your chats file, upload, enter a table name for your chats, and click on "process data", the chat data will be processed to a standard format and loaded to the database:
-
-<img src="./resources/fileupload.png" alt="upload" width=800 />
-
-After refreshing, you will see your chat table created. 
-
-You can choose a chat table and have a quick preview of its first 10 rows.
-
-<img src="./resources/showtable.png" alt="show table" width=700 />
-
-You can either click on "Delete" to delete the table from the database or click on "Select" to use the chat data for analysis.
-
-If you choose "select", you will be directed to a page where all of your contacts are shown.
-
-Simply click on the contact whose chats you want to analyze, you will see a calendar showing all dates when you have at least a chat!
-
-Now, you can select the start and end dates of your chats, and click "Confirm and Analyze"
-
-<img src="./resources/showchats.png" alt="show chats" width=700 />
-
-Then you will go to the analysis page. Currently we only have a chat frequency heatmap calendar for you. Click on the "Select" button in the "Visualize Chat Frequency Calendar" card, and you will see your heatmap calendar!
-
-<img src="./resources/analysis.png" alt="analysis" width=700 />
-
-More functions are in progress. Hope you can have fun!
-
 ## Functions
 
 - Visualize Chat Frequency Calendar
   - Generate a calendar heatmap of chat frequency to identify active and inactive periods.
-  - 
+  - ![image](https://github.com/user-attachments/assets/20639d87-e781-4fce-b804-77f849901084)
+
+- Word Cloud
+  - Create a word cloud to visualize the most frequently used words in chat messages.
+  - ![image](https://github.com/user-attachments/assets/bca92464-0a63-4bf3-9df1-b4648a6c3843)
+
+- Sentiment Analysis
+  - Perform sentiment analysis on chat messages and use t-SNE to cluster examples based on emotional tone.
+  - ![image](https://github.com/user-attachments/assets/95b63002-bba3-43d6-9959-87e0ba085644)
+
+- Social Network Graph
+  - Generate a social network graph to visualize user interactions in selected Telegram channels, highlighting key connections.
+  - ![image](https://github.com/user-attachments/assets/89ef0c51-c953-4df2-855f-39ba5a4764fd)
+
+
+- Pie Chart of Chat Numbers by User
+  - Generate a pie chart representing the distribution of chat numbers among different users.
+  - ![image](https://github.com/user-attachments/assets/804edc95-8b9d-46dd-8b2f-00f1c8f355c0)
+
+- Radar Chart of Activity by Time of Day
+  - Create a radar chart to visualize chat activity distribution across different times of the day.
+  - ![image](https://github.com/user-attachments/assets/a6bc5b8d-7980-454d-8ed0-5ca0c3724fe8)
 
 
 ## Tools Used:
