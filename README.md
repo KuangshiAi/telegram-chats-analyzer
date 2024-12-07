@@ -96,30 +96,30 @@ Then the server will be started.
 
 ## Functions
 
-- Visualize Chat Frequency Calendar
-  - Generate a calendar heatmap of chat frequency to identify active and inactive periods.
-  - ![image](https://github.com/user-attachments/assets/20639d87-e781-4fce-b804-77f849901084)
+- **Visualize Chat Frequency Calendar**  
+  Generate a calendar heatmap of chat frequency to identify active and inactive periods.  
+  <img src="https://github.com/user-attachments/assets/20639d87-e781-4fce-b804-77f849901084" alt="Calendar Heatmap" width="400">
 
-- Word Cloud
-  - Create a word cloud to visualize the most frequently used words in chat messages.
-  - ![image](https://github.com/user-attachments/assets/bca92464-0a63-4bf3-9df1-b4648a6c3843)
+- **Word Cloud**  
+  Create a word cloud to visualize the most frequently used words in chat messages.  
+  <img src="https://github.com/user-attachments/assets/bca92464-0a63-4bf3-9df1-b4648a6c3843" alt="Word Cloud" width="400">
 
-- Sentiment Analysis
-  - Perform sentiment analysis on chat messages and use t-SNE to cluster examples based on emotional tone.
-  - ![image](https://github.com/user-attachments/assets/95b63002-bba3-43d6-9959-87e0ba085644)
+- **Sentiment Analysis**  
+  Perform sentiment analysis on chat messages and use t-SNE to cluster examples based on emotional tone.  
+  <img src="https://github.com/user-attachments/assets/95b63002-bba3-43d6-9959-87e0ba085644" alt="Sentiment Analysis" width="400">
 
-- Social Network Graph
-  - Generate a social network graph to visualize user interactions in selected Telegram channels, highlighting key connections.
-  - ![image](https://github.com/user-attachments/assets/89ef0c51-c953-4df2-855f-39ba5a4764fd)
+- **Social Network Graph**  
+  Generate a social network graph to visualize user interactions in selected Telegram channels, highlighting key connections.  
+  <img src="https://github.com/user-attachments/assets/89ef0c51-c953-4df2-855f-39ba5a4764fd" alt="Social Network Graph" width="400">
 
+- **Pie Chart of Chat Numbers by User**  
+  Generate a pie chart representing the distribution of chat numbers among different users.  
+  <img src="https://github.com/user-attachments/assets/804edc95-8b9d-46dd-8b2f-00f1c8f355c0" alt="Pie Chart" width="400">
 
-- Pie Chart of Chat Numbers by User
-  - Generate a pie chart representing the distribution of chat numbers among different users.
-  - ![image](https://github.com/user-attachments/assets/804edc95-8b9d-46dd-8b2f-00f1c8f355c0)
+- **Radar Chart of Activity by Time of Day**  
+  Create a radar chart to visualize chat activity distribution across different times of the day.  
+  <img src="https://github.com/user-attachments/assets/a6bc5b8d-7980-454d-8ed0-5ca0c3724fe8" alt="Radar Chart" width="400">
 
-- Radar Chart of Activity by Time of Day
-  - Create a radar chart to visualize chat activity distribution across different times of the day.
-  - ![image](https://github.com/user-attachments/assets/a6bc5b8d-7980-454d-8ed0-5ca0c3724fe8)
 
 
 ## Tools Used:
