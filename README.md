@@ -128,13 +128,11 @@ Then you will go to the analysis page. Currently we only have a chat frequency h
 
 More functions are in progress. Hope you can have fun!
 
-## Work in Progress
+## Functions
 
-- Add more functions like sentiment visualization, an interactive interface to view a chat annual summary, a rigorious statistical analysis of chats, and even incorporating ChatGPT to learn to chat like your selected contact! And ..., more!
-- Beautify the web style and make it more user-friendly.
-- Deploy the website on the internet for you to use more easily!
-
-Thank you, hope you will have fun! :) 
+- Visualize Chat Frequency Calendar
+  - Generate a calendar heatmap of chat frequency to identify active and inactive periods.
+  - 
 
 
 ## Tools Used:
