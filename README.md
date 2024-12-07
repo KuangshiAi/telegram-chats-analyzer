@@ -129,3 +129,6 @@ Thank you, hope you will have fun! :)
 
 - Backend
   - Python, Flask, PostgreSQL, Pandas
+ 
+- Visualization & Analysis
+  - Matplotlib, NLTK, Networkx, Scikit-Learn
