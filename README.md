@@ -5,7 +5,7 @@ Here is a web app for you to analyze and visualize telegram chats!
 
 Authors: [mikelovesolivia](https://github.com/mikelovesolivia) & [KuangshiAi](https://github.com/KuangshiAi)
 
-[DEMO VIDEO](https://github.com/mikelovesolivia/telegram-chats-analyzer/blob/main/resources/telegram_chat_analyzer_demo.mp4)
+[Demo Video](https://github.com/mikelovesolivia/telegram-chats-analyzer/blob/main/resources/telegram_chat_analyzer_demo.mp4)
 
 ## Setup
 
