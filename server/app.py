@@ -17,7 +17,7 @@ from utils.generate_radarchart import generate_radar_chart
 app = Flask(__name__)
 CORS(app)
 
-TEMP_JSON_PATH = "./uploads/result.json"
+TEMP_JSON_PATH = "../uploads/result.json"
 
 progress = {"total_contacts": 0, "processed_contacts": 0, "current_contact_progress": 0}
 
@@ -26,7 +26,7 @@ progress = {"total_contacts": 0, "processed_contacts": 0, "current_contact_progr
 DB_PARAMS = {
     "dbname": "chats",
     "user": "postgres",
-    "password": "5623242",
+    "password": "1234",
     "host": "localhost",
     "port": 5432,
 }
